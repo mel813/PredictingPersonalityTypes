@@ -94,6 +94,7 @@ for name, info in models.items():
     roc_auc = auc(fpr, tpr)
     plt.plot(fpr, tpr, color=info['color'], lw=2, label=f'{name} (AUC = {roc_auc:.2f})')
 
+#Create the ROC curve plot
 plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random guess')
 plt.xlim([0.0, 1.0])
 plt.ylim([0.0, 1.05])
