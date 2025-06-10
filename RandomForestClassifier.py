@@ -6,6 +6,14 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.model_selection import GridSearchCV
 
+'''Testing with Random Forest Classifiers
+
+This script trains a Random Forest(RF) classifier to predict personality types based on various features.
+It includes hyperparameter tuning using GridSearchCV and evaluates the model's performance using cross-validation and classification reports.
+Feature importance visualization is also set up to understand the contribution of each feature in the model's predictions.
+
+'''
+
 #Experimenting with Random Forest Classifier
 rf = RandomForestClassifier(random_state=42)
 
@@ -25,31 +33,51 @@ param_grid = {
 print("Best parameters:", best_params)
 print("Best cross-validation accuracy:", best_score)
 
-# Note the best parameters output may vary depending on the training data and the random state.
+# Note the best parameters output may vary depending on the training data split and the random state.
 
-# Set up the Random Forest model with the best parameters found
-rf_model = RandomForestClassifier(random_state=42, n_estimators=100, min_samples_split=2, min_samples_leaf=4, max_features='sqrt')
+def train_random_forest(X_train, y_train):
+    """
+    Function to train a Random Forest model.
+    
+    Parameters:
+    X_train: Training features.
+    y_train: Training labels.
+    
+    Returns:
+    rf_model: Trained Random Forest model.
+    rf_y_pred: Predictions on the test set.
+    """
 
-# Train on training set and evaluate on test set
-rf_model.fit(X_train, y_train)
-rf_y_pred = rf_model.predict(X_test)
+    # Train the Random Forest model with the best parameters
+    rf_model = RandomForestClassifier(**best_params, random_state=42)
 
-# Perform 5-fold cross-validation
-cv_scores = cross_val_score(rf_model, X, y, cv=5)
-print("Cross-val mean accuracy: {:.3f}".format(cv_scores.mean()))
-print("Random Forest Model CV Accuracy:", rf_model.score(X_test, y_test))
+    # Fit the model on the training data
+    rf_model.fit(X_train, y_train)
 
-# Print classification report for Random Forest
-print(classification_report(y_test, rf_y_pred, target_names=[str(cls) for cls in le_target.classes_]))
+    # Predict on the test set
+    rf_y_pred = rf_model.predict(X_test)
 
-#Visualize Feature importance
-importance = rf_model.feature_importances_
-feature_names = X_train.columns  # or use whatever list contains your feature names
+    # Return the trained model and predictions
+    return rf_model, rf_y_pred
 
-#Plot the feature importance from Random Forest
-plt.figure(figsize=(8, 5))
-plt.barh(feature_names, importance)
-plt.title("Feature Importance from Random Forest")
-plt.ylabel("Importance Score")
-plt.tight_layout()
-plt.show()
+def visualize_feature_importance_rf(rf_model, X_train):
+    """
+    Function to visualize feature importance from the Random Forest model.
+    
+    Parameters:
+    rf_model: Trained Random Forest model.
+    X_train: Training features.
+    
+    Returns:
+    None
+    """
+    importance = rf_model.feature_importances_
+    feature_names = X_train.columns 
+
+    # Plot the feature importance
+    plt.figure(figsize=(8, 5))
+    plt.barh(feature_names, importance)
+    plt.title("Feature Importance from Random Forest")
+    plt.xlabel("Importance Score")
+    plt.tight_layout()
+    plt.show()

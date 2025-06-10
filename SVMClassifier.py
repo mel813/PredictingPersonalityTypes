@@ -5,8 +5,17 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import classification_report
 from sklearn.svm import SVC
+from sklearn.inspection import permutation_importance
 
-#Experimenting with SVM Classifiers
+'''Testing with SVM Classifiers
+
+This script trains a Support Vector Machine (SVM) classifier to predict personality types based on various features.
+It includes hyperparameter tuning using GridSearchCV and evaluates the model's performance using cross-validation and classification reports.
+Feature importance visualization is also set up using permutation importance to understand the contribution of each feature in the model's predictions.
+
+'''
+
+#Set up the SVM model with initial parameters
 svm_model=SVC(kernel="rbf", C=1, gamma=1)
 
 # Define the range of hyperparameters for tuning
@@ -25,23 +34,52 @@ param_grid = {
 print("Best combination of parameters:", best_params)
 print("Best cross-validation accuracy:", best_score)
 
-# Use the best estimator to predict
-# Retrain the SVM model with the best parameters
-svm_model = SVC(C=0.03125, gamma=0.03125)
-svm_model.fit(X_train, y_train)
-svm_y_pred = svm_model.predict(X_test)
-svm_scores = cross_val_score(svm_model, X, y, cv=5)
-print("cross-val mean-accuracy: {:.3f}".format(np.mean(svm_scores)))
-print("SVM Model CV Accuracy:", svm_model.score(X_test, y_test))
-print(classification_report(y_test, svm_y_pred, target_names=[str(cls) for cls in le_target.classes_]))
+def train_svm(X_train, y_train):
+    """
+    Function to train a Support Vector Machine (SVM) model.
+    
+    Parameters:
+    X_train: Training features.
+    y_train: Training labels.
+    
+    Returns:
+    svm_model: Trained SVM model.
+    svm_y_pred: Predictions on the test set.
+    """
+    
+    # Train the SVM model with the best parameters
+    svm_model = SVC(**best_params)
+    
+    # Fit the model on the training data
+    svm_model.fit(X_train, y_train)
+    
+    # Predict on the test set
+    svm_y_pred = svm_model.predict(X_test)
+    
+    return svm_model, svm_y_pred
 
-from sklearn.inspection import permutation_importance
-result = permutation_importance(svm_model, X_test, y_test, n_repeats=10, random_state=42)
 
-importances = result.importances_mean
-feature_names = X.columns if hasattr(X, 'columns') else [f"Feature {i}" for i in range(X.shape[1])]
-
-plt.barh(feature_names, importances)
-plt.xlabel("Mean Importance")
-plt.title("Permutation Feature Importance (SVM)")
-plt.show()
+def visualize_feature_importance_svm(svm_model, X_train):
+    """
+    Function to visualize feature importance using permutation importance.
+    
+    Parameters:
+    svm_model: Trained SVM model.
+    X_train: Training features.
+    
+    Returns:
+    None
+    """
+    
+    # Calculate permutation importance
+    result = permutation_importance(svm_model, X_train, y_train, n_repeats=10, random_state=42)
+    
+    importances = result.importances_mean
+    feature_names = X_train.columns if hasattr(X_train, 'columns') else [f"Feature {i}" for i in range(X_train.shape[1])]
+    
+    # Plot the feature importance
+    plt.figure(figsize=(20, 6))
+    plt.barh(feature_names, importances)
+    plt.xlabel("Mean Importance")
+    plt.title("Permutation Feature Importance (SVM)")
+    plt.show()
