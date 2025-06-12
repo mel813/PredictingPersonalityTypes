@@ -13,7 +13,7 @@ Before you begin, ensure you have the following installed and configured on your
 * **PATH Variables:** Ensure Python and Pip are correctly added to your system's PATH variables.
 * **Code Editor:** A code editor of your choice, such as Visual Studio Code.
 
-# Install Python Dependencies:**
+# Install Python Dependencies:
 * Open your CLI/terminal and run the following command to install all necessary Python packages
 
     '''run pip install pandas matplotlib numpy seaborn statsmodels scikit-learn'''
